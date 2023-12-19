@@ -283,6 +283,95 @@ let private tests_arcTableProcess =
             let table = ArcTable.fromProcesses tableName1 processes
             Expect.arcTableEqual table t "Table should be equal"
         )
+
+        testCase "OnlyInput GetProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Input IOType.Source
+            let inputName = "MyInput"
+            t.AddColumn(header, [|CompositeCell.createFreeText inputName|])
+            let processes = t.GetProcesses()
+            Expect.equal processes.Length 1 "Should have 1 process"
+            let p = processes.[0]
+            let inputs = Expect.wantSome p.Inputs "Process should have inputs"
+            Expect.equal inputs.Length 1 "Process should have 1 input"
+            let input = inputs.[0]
+            let source = Expect.wantSome (ProcessInput.trySource input) "Input should be source"
+            let name = Expect.wantSome source.Name "Source should have name"
+            Expect.equal name inputName "Source name should match"
+        )
+        testCase "OnlyInput GetAndFromProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Input IOType.Source
+            let inputName = "MyInput"
+            t.AddColumn(header, [|CompositeCell.createFreeText inputName|])
+            let processes = t.GetProcesses()
+            let t' = ArcTable.fromProcesses tableName1 processes
+            Expect.arcTableEqual t t' "Table should be equal"
+        )
+        testCase "OnlyInput Empty GetAndFromProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Input IOType.Source
+            t.AddColumn(header)
+            let processes = t.GetProcesses()
+            let t' = ArcTable.fromProcesses tableName1 processes
+            Expect.arcTableEqual t t' "Table should be equal"
+        )
+        testCase "OnlyOutput GetProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Output IOType.Sample
+            let outputName = "MyOutput"
+            t.AddColumn(header, [|CompositeCell.createFreeText outputName|])
+            let processes = t.GetProcesses()
+            Expect.equal processes.Length 1 "Should have 1 process"
+            let p = processes.[0]
+            let outputs = Expect.wantSome p.Outputs "Process should have inputs"
+            Expect.equal outputs.Length 1 "Process should have 1 input"
+            let output = outputs.[0]
+            let source = Expect.wantSome (ProcessOutput.trySample output) "Output should be sample"
+            let name = Expect.wantSome source.Name "Sample should have name"
+            Expect.equal name outputName "Sample name should match"
+        )
+        testCase "OnlyOutput GetAndFromProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Output IOType.Sample
+            let outputName = "MyOutput"
+            t.AddColumn(header, [|CompositeCell.createFreeText outputName|])
+            let processes = t.GetProcesses()
+            let t' = ArcTable.fromProcesses tableName1 processes
+            Expect.arcTableEqual t t' "Table should be equal"
+        )
+        testCase "OnlyOutput Empty GetAndFromProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Output IOType.Sample
+            t.AddColumn(header)
+            let processes = t.GetProcesses()
+            let t' = ArcTable.fromProcesses tableName1 processes
+            Expect.arcTableEqual t t' "Table should be equal"
+        )
+        testCase "OnlyParameter GetProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Parameter oa_species
+            t.AddColumn(header, [|CompositeCell.createTerm oa_chlamy|])
+            let processes = t.GetProcesses()
+            Expect.equal processes.Length 1 "Should have 1 process"
+            let p = processes.[0]
+            let paramVals = Expect.wantSome p.ParameterValues "Process should have parameter values"
+            Expect.equal paramVals.Length 1 "Process should have 1 parameter value"
+            let paramVal = paramVals.[0]
+            let param = Expect.wantSome paramVal.Category "Parameter value should have category"
+            let name = Expect.wantSome param.ParameterName "Parameter should have name"
+            Expect.equal oa_species name "Parameter name should match"
+            let value = Expect.wantSome paramVal.Value "Parameter should have value"          
+            Expect.equal oa_chlamy (value.AsOntology()) "Parameter value should match"
+        )
+        testCase "OnlyParameter GetAndFromProcesses" (fun () ->
+            let t = ArcTable.init tableName1
+            let header = CompositeHeader.Parameter oa_species
+            t.AddColumn(header, [|CompositeCell.createTerm oa_chlamy|])
+            let processes = t.GetProcesses()
+            let t' = ArcTable.fromProcesses tableName1 processes
+            Expect.arcTableEqual t t' "Table should be equal"
+        )
     ]
 
 let private tests_arcTablesProcessSeq = 

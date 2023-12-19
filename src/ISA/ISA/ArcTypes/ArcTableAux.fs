@@ -525,7 +525,8 @@ module ProcessParsing =
         match header with
         | CompositeHeader.Input io ->
             fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
-                JsonTypes.composeProcessInput header matrix.[generalI,i]
+                let s = Dictionary.tryFind (generalI,i) matrix |> Option.defaultValue (CompositeCell.FreeText "")
+                JsonTypes.composeProcessInput header s
             |> Some
         | _ -> None
 
@@ -533,7 +534,8 @@ module ProcessParsing =
         match header with
         | CompositeHeader.Output io ->
             fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
-                JsonTypes.composeProcessOutput header matrix.[generalI,i]
+                let s = Dictionary.tryFind (generalI,i) matrix |> Option.defaultValue (CompositeCell.FreeText "")
+                JsonTypes.composeProcessOutput header s
             |> Some
         | _ -> None
 

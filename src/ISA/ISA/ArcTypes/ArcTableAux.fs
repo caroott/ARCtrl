@@ -605,11 +605,13 @@ module ProcessParsing =
                         input
                         |> ProcessInput.setCharacteristicValues chars
                         |> List.singleton
+                |> Some
             | None ->
-                fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
-                    let chars = charGetters |> Seq.map (fun f -> f matrix i) |> Seq.toList
-                    ProcessInput.Source (Source.create(Name = $"{processNameRoot}_Input_{i}", Characteristics = chars))
-                    |> List.singleton
+                None
+                //fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
+                //    let chars = charGetters |> Seq.map (fun f -> f matrix i) |> Seq.toList
+                //    ProcessInput.Source (Source.create(Name = $"{processNameRoot}_Input_{i}", Characteristics = chars))
+                //    |> List.singleton
             
         // This is a little more complex, as data and material objects can't contain factors. So in the case where the output of the table is a data object but factors exist. An additional sample object with the same name is created to contain the factors.
         let outputGetter =
@@ -627,11 +629,13 @@ module ProcessParsing =
                         output
                         |> ProcessOutput.setFactorValues factors
                         |> List.singleton
+                |> Some
             | None ->
-                fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
-                    let factors = factorValueGetters |> Seq.map (fun f -> f matrix i) |> Seq.toList
-                    ProcessOutput.Sample (Sample.create(Name = $"{processNameRoot}_Output_{i}", FactorValues = factors))
-                    |> List.singleton
+                None
+                //fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
+                //    let factors = factorValueGetters |> Seq.map (fun f -> f matrix i) |> Seq.toList
+                //    ProcessOutput.Sample (Sample.create(Name = $"{processNameRoot}_Output_{i}", FactorValues = factors))
+                //    |> List.singleton
 
         fun (matrix : System.Collections.Generic.Dictionary<(int * int),CompositeCell>) i ->
 
@@ -664,14 +668,18 @@ module ProcessParsing =
                     | _ -> Some p
 
             let inputs,outputs = 
-                let inputs = inputGetter matrix i
-                let outputs = outputGetter matrix i
-                if inputs.Length = 1 && outputs.Length = 2 then 
-                    [inputs.[0];inputs.[0]],outputs
-                elif inputs.Length = 2 && outputs.Length = 1 then
-                    inputs,[outputs.[0];outputs.[0]]
-                else
-                    inputs,outputs
+                match inputGetter, outputGetter with
+                | Some ig, Some og -> 
+                    let i,o = ig matrix i, og matrix i
+                    if i.Length = 1 && o.Length = 2 then 
+                        Some [i.[0];i.[0]],Some o
+                    elif i.Length = 2 && o.Length = 1 then
+                        Some i,Some [o.[0];o.[0]]
+                    else
+                        Some i, Some o
+                | Some ig, None -> Some (ig matrix i), None
+                | None, Some og -> None, Some (og matrix i)
+                | None, None -> None, None
 
             Process.make 
                 None 
@@ -682,8 +690,8 @@ module ProcessParsing =
                 None
                 None
                 None          
-                (Some inputs)
-                (Some outputs)
+                inputs
+                outputs
                 None
 
     /// Groups processes by their name, or by the name of the protocol they execute

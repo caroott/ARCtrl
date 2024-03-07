@@ -4503,6 +4503,6 @@ let assay =
     ]
   },
   "technologyPlatform": "LC-MS/MS",
-  "filename": "a_metabolome.txt"
+  "filename": "assays/a_metabolome/isa.assay.xlsx"
 }
     """

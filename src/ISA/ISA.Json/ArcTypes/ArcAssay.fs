@@ -36,6 +36,114 @@ module JsonHelper =
 
 open JsonHelper
 
+module AssayMaterials = 
+
+    let encoder (options : ConverterOptions) (oa : AssayMaterials) = 
+        [
+            GEncode.tryIncludeList "samples" (Sample.encoder options) (oa.Samples)
+            GEncode.tryIncludeList "otherMaterials" (Material.encoder options) (oa.OtherMaterials)
+        ]
+        |> GEncode.choose
+        |> Encode.object
+    
+    let allowedFields = ["samples";"otherMaterials"]
+
+    let decoder (options : ConverterOptions) : Decoder<AssayMaterials> =
+        GDecode.object allowedFields (fun get ->
+            {
+                Samples = get.Optional.Field "samples" (Decode.list (Sample.decoder options))
+                OtherMaterials = get.Optional.Field "otherMaterials" (Decode.list (Material.decoder options))
+            }
+        )
+
+module Assay = 
+    
+    let genID (a:ArcAssay) : string = 
+        let fileName = 
+            if ARCtrl.ISA.Identifier.isMissingIdentifier a.Identifier then
+                None
+            else 
+                Some (ARCtrl.ISA.Identifier.Assay.fileNameFromIdentifier a.Identifier)
+        match fileName with
+        | Some n -> n.Replace(" ","_").Remove(0,1 + (max (n.LastIndexOf('/')) (n.LastIndexOf('\\'))))
+        | None -> "#EmptyAssay"
+
+    let encoder (options : ConverterOptions) (studyName:string Option) (oa : ArcAssay) = 
+        let assayName =
+            if ARCtrl.ISA.Identifier.isMissingIdentifier oa.Identifier then
+                None
+            else 
+                Some (ARCtrl.ISA.Identifier.Assay.fileNameFromIdentifier oa.Identifier)
+        let a = ["Assay";"ArcAssay"]
+        let processSeq = ArcTables(oa.Tables).GetProcesses()
+        let assayMaterials =
+            AssayMaterials.create(
+                ?Samples = (ProcessSequence.getSamples processSeq |> Aux.Option.fromValueWithDefault []),
+                ?OtherMaterials = (ProcessSequence.getMaterials processSeq |> Aux.Option.fromValueWithDefault [])
+            )
+            |> Aux.Option.fromValueWithDefault AssayMaterials.empty
+        [
+            "@id", Encode.string (oa |> genID)
+            if options.IncludeType then 
+                "@type", (Encode.list [ Encode.string "Assay"; Encode.string "ArcAssay"])
+            GEncode.tryInclude "filename" Encode.string (assayName)
+            GEncode.tryInclude "measurementType" (OntologyAnnotation.encoder options) (oa.MeasurementType)
+            GEncode.tryInclude "technologyType" (OntologyAnnotation.encoder options) (oa.TechnologyType)
+            GEncode.tryInclude "technologyPlatform" Encode.string (oa.TechnologyPlatform |> Option.map ArcAssay.composeTechnologyPlatform)
+            GEncode.tryIncludeList "dataFiles" (Data.encoder options) (ProcessSequence.getData processSeq |> Aux.Option.fromValueWithDefault [])
+            if options.IsRoCrate then
+                match assayMaterials with
+                | Some m -> 
+                    GEncode.tryIncludeList "samples" (Sample.encoder options) m.Samples
+                    GEncode.tryIncludeList "materials" (Material.encoder options) m.OtherMaterials
+                | None -> ()
+            if not options.IsRoCrate then
+                GEncode.tryInclude "materials" (AssayMaterials.encoder options) assayMaterials
+            GEncode.tryIncludeList "characteristicCategories" (MaterialAttribute.encoder options) (ProcessSequence.getCharacteristics processSeq |> Aux.Option.fromValueWithDefault [])
+            GEncode.tryIncludeList "unitCategories" (OntologyAnnotation.encoder options) (ProcessSequence.getUnits processSeq |> Aux.Option.fromValueWithDefault [])
+            GEncode.tryIncludeList "processSequence" (Process.encoder options studyName assayName) (processSeq |> Aux.Option.fromValueWithDefault [])
+            GEncode.tryIncludeList "comments" (Comment.encoder options) (oa.Comments |> List.ofArray |> Aux.Option.fromValueWithDefault [])
+            if options.IncludeContext then
+                "@context", ROCrateContext.Assay.context_jsonvalue
+        ]
+        |> GEncode.choose
+        |> Encode.object
+
+    let allowedFields = ["@id";"filename";"measurementType";"technologyType";"technologyPlatform";"dataFiles";"materials";"characteristicCategories";"unitCategories";"processSequence";"comments";"@type"; "@context"]
+
+    let decoder (options : ConverterOptions) : Decoder<ArcAssay> =
+        Decode.object (fun get ->
+            let ps = get.Optional.Field "processSequence" (Decode.list (Process.decoder options))
+            ArcAssay.make
+                (match (get.Optional.Field "filename" Decode.string) with
+                    | Some fn -> Identifier.Assay.identifierFromFileName fn
+                    | None -> Identifier.createMissingIdentifier())
+                (get.Optional.Field "measurementType" (OntologyAnnotation.decoder options))
+                (get.Optional.Field "technologyType" (OntologyAnnotation.decoder options))
+                (get.Optional.Field "technologyPlatform" Decode.string  |> Option.map ArcAssay.decomposeTechnologyPlatform)
+                (match ps with
+                    | Some s -> ((ArcTables.fromProcesses >> fun t -> t.Tables) s)
+                    | None -> (ResizeArray []))
+                [||]
+                (tryGetComments get "comments")
+        )
+        // GDecode.object allowedFields (fun get ->
+        //     {
+        //         Identifier = match (get.Optional.Field "filename" Decode.string) with
+        //             | Some fn -> Identifier.Assay.identifierFromFileName fn
+        //             | None -> Identifier.createMissingIdentifier()
+        //         MeasurementType = get.Optional.Field "measurementType" (OntologyAnnotation.decoder options)
+        //         TechnologyType = get.Optional.Field "technologyType" (OntologyAnnotation.decoder options)
+        //         TechnologyPlatform = get.Optional.Field "technologyPlatform" Decode.string
+        //         DataFiles = get.Optional.Field "dataFiles" (Decode.list (Data.decoder options))
+        //         Materials = get.Optional.Field "materials" (AssayMaterials.decoder options)
+        //         CharacteristicCategories = get.Optional.Field "characteristicCategories" (Decode.list (MaterialAttribute.decoder options))
+        //         UnitCategories = get.Optional.Field "unitCategories" (Decode.list (OntologyAnnotation.decoder options))
+        //         ProcessSequence = (get.Optional.Field "processSequence" (Decode.list (Process.decoder options))) |> Option.map (ArcTables.fromProcesses >> fun t -> t.Tables)
+        //         Comments = get.Optional.Field "comments" (Decode.list (Comment.decoder options))
+        //     }
+        // )
+
 module ArcAssay = 
     let encoder (assay:ArcAssay) = 
         Encode.object [ 
@@ -103,19 +211,19 @@ module ArcAssay =
 
     /// exports in json-ld format
     let toJsonldString (a:ArcAssay) = 
-        Assay.encoder (ConverterOptions(SetID=true,IncludeType=true)) None (a.ToAssay())
+        Assay.encoder (ConverterOptions(SetID=true,IncludeType=true)) None (a)
         |> GEncode.toJsonString 2
 
     let toJsonldStringWithContext (a:ArcAssay) = 
-        Assay.encoder (ConverterOptions(SetID=true,IncludeType=true,IncludeContext=true)) None (a.ToAssay())
+        Assay.encoder (ConverterOptions(SetID=true,IncludeType=true,IncludeContext=true)) None (a)
         |> GEncode.toJsonString 2
 
     let fromJsonString (s:string) = 
         GDecode.fromJsonString (Assay.decoder (ConverterOptions())) s
-        |> ArcAssay.fromAssay
+        // |> ArcAssay.fromAssay
 
     let toJsonString (a:ArcAssay) = 
-        Assay.encoder (ConverterOptions()) None (a.ToAssay())
+        Assay.encoder (ConverterOptions()) None (a)
         |> GEncode.toJsonString 2
 
     let toArcJsonString (a:ArcAssay) : string =

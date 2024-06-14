@@ -13,7 +13,7 @@ let downloadFile url =
                 | 200 -> responseText
                 | _ -> failwithf "Status %d => %s" statusCode responseText
         }
-    #if FABLE_COMPILER_JAVASCRIPT
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     
     if ARCtrl.WebRequestHelpers.NodeJs.isNode() then
         // From here: https://github.com/fable-compiler/fable3-samples/blob/25ea2404b28c897988b144f0141bc116da292679/nodejs/src/App.fs#L7

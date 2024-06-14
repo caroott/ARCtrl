@@ -5,7 +5,7 @@ open ARCtrl.Json
 open ARCtrl.Spreadsheet
 open Fable.Core
 
-#if FABLE_COMPILER_JAVASCRIPT
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
 open Node.Api
 #endif
 
@@ -14,7 +14,7 @@ open Fable.Python.Builtins
 #endif
 
 let writeFile (path : string) (content : string) =
-    #if FABLE_COMPILER_JAVASCRIPT
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     fs.writeFileSync(path,content)
     #endif
     #if FABLE_COMPILER_PYTHON
@@ -207,7 +207,7 @@ let createMarkdownPerformanceReport lang cpu =
     report.RunTests().ToMarkdown()
 
 let lang = 
-    #if FABLE_COMPILER_JAVASCRIPT
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     "JavaScript"
     #endif 
     #if FABLE_COMPILER_PYTHON

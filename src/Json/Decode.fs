@@ -50,7 +50,7 @@ module Decode =
         #if FABLE_COMPILER_PYTHON
         Thoth.Json.Python.Decode.helpers
         #endif
-        #if FABLE_COMPILER_JAVASCRIPT
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
         Thoth.Json.JavaScript.Decode.helpers
         #endif
         #if !FABLE_COMPILER
@@ -75,7 +75,7 @@ module Decode =
         #if FABLE_COMPILER_PYTHON
         match Thoth.Json.Python.Decode.fromString decoder s with
         #endif
-        #if FABLE_COMPILER_JAVASCRIPT
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
         match Thoth.Json.JavaScript.Decode.fromString decoder s with
         #endif
         #if !FABLE_COMPILER

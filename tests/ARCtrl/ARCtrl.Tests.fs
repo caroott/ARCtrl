@@ -631,6 +631,7 @@ let private ``payload_file_filters`` =
     ]
 
 let private tests_RemoveAssay = testList "RemoveAssay" [
+    // TODO/@HLWeil, why is this pending?
     ptestCase "not registered, fsworkbook equal" <| fun _ ->
         let arc = ARC()
         let i = ArcInvestigation.init("My Investigation")
@@ -641,7 +642,7 @@ let private tests_RemoveAssay = testList "RemoveAssay" [
         let actual = arc.RemoveAssay(assayIdentifier)
         let expected = [
             Contract.createDelete (Path.getAssayFolderPath assayIdentifier)
-            i.ToUpdateContract()
+            ArcInvestigation.toUpdateContract(i,None)
         ]
         Expect.sequenceEqual actual expected "we do not have correct FsWorkbook equality helper functions"
     testCase "not registered" <| fun _ ->

@@ -18,23 +18,9 @@ module InvestigationContractExtensions =
             Some path
         | _ -> None
 
-    type ArcInvestigation with
+    module ArcInvestigation =
 
-        member this.ToCreateContract (?isLight: bool) =
-            let isLight = defaultArg isLight true
-            let converter = if isLight then ArcInvestigation.toLightFsWorkbook else ArcInvestigation.toFsWorkbook
-            let path = InvestigationFileName
-            let c = Contract.createCreate(path, DTOType.ISA_Investigation, DTO.Spreadsheet (this |> converter))
-            c
-
-        member this.ToUpdateContract (?isLight: bool) =
-            let isLight = defaultArg isLight true
-            let converter = if isLight then ArcInvestigation.toLightFsWorkbook else ArcInvestigation.toFsWorkbook
-            let path = InvestigationFileName
-            let c = Contract.createUpdate(path, DTOType.ISA_Investigation, DTO.Spreadsheet (this |> converter))
-            c
-
-        //member this.ToDeleteContract () =
+        //let ToDeleteContract () =
         //    let path = InvestigationFileName
         //    let c = Contract.createDelete(path)
         //    c
@@ -44,13 +30,21 @@ module InvestigationContractExtensions =
         //    let c = Contract.createDelete(path)
         //    c
 
-        static member toCreateContract (inv: ArcInvestigation, ?isLight: bool) : Contract =
-            inv.ToCreateContract(?isLight=isLight)
+        let toCreateContract (inv: ArcInvestigation, isLight: bool option) : Contract =
+            let isLight = defaultArg isLight true
+            let converter = if isLight then ArcInvestigation.toLightFsWorkbook else ArcInvestigation.toFsWorkbook
+            let path = InvestigationFileName
+            let c = Contract.createCreate(path, DTOType.ISA_Investigation, DTO.Spreadsheet (inv |> converter))
+            c
 
-        static member toUpdateContract (inv: ArcInvestigation, ?isLight: bool) : Contract =
-            inv.ToUpdateContract(?isLight=isLight)
+        let toUpdateContract (inv: ArcInvestigation, isLight: bool option) : Contract =
+            let isLight = defaultArg isLight true
+            let converter = if isLight then ArcInvestigation.toLightFsWorkbook else ArcInvestigation.toFsWorkbook
+            let path = InvestigationFileName
+            let c = Contract.createUpdate(path, DTOType.ISA_Investigation, DTO.Spreadsheet (inv |> converter))
+            c
 
-        static member tryFromReadContract (c:Contract) =
+        let tryFromReadContract (c:Contract) =
             match c with
             | {Operation = READ; DTOType = Some DTOType.ISA_Investigation; DTO = Some (DTO.Spreadsheet fsworkbook)} ->
                 fsworkbook :?> FsWorkbook

@@ -100,7 +100,7 @@ type ARC(?isa : ArcInvestigation, ?cwl : CWL.CWL, ?fs : FileSystem.FileSystem) =
         this.SetFilePaths(filteredPaths)      
         [
             assay.ToDeleteContract()
-            isa.ToUpdateContract()
+            ArcInvestigation.toUpdateContract(isa, None)
             for s in studies do
                 s.ToUpdateContract()
         ]
@@ -137,7 +137,7 @@ type ARC(?isa : ArcInvestigation, ?cwl : CWL.CWL, ?fs : FileSystem.FileSystem) =
         this.SetFilePaths(filteredPaths)
         [
             Contract.createDelete(studyFolderPath) // isa.GetStudy(studyIdentifier).ToDeleteContract()
-            isa.ToUpdateContract()
+            ArcInvestigation.toUpdateContract(isa, None)
         ]
         |> ResizeArray
 
@@ -389,7 +389,7 @@ type ARC(?isa : ArcInvestigation, ?cwl : CWL.CWL, ?fs : FileSystem.FileSystem) =
                 //if inv.StaticHash = 0 then       
                 //    yield inv.ToCreateContract(isLight)
                 if inv.StaticHash <> hash then 
-                    yield inv.ToUpdateContract(isLight)
+                    yield ArcInvestigation.toUpdateContract(inv,Some isLight)
                 inv.StaticHash <- hash
 
                 // Get Study contracts             

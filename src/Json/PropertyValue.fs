@@ -11,12 +11,12 @@ module PropertyValue =
     
     module ROCrate =
         
-        let genID (p : IPropertyValue<'T>) = 
+        let genID (p : IPropertyValue) = 
             match p.GetCategory() with
             | Some t -> $"{p.GetAdditionalType()}/{t}{p.GetValue()}{p.GetUnit()}"
             | None -> $"#Empty{p.GetAdditionalType()}"
 
-        let encoder<'T> (pv : IPropertyValue<'T>) = 
+        let encoder (pv : IPropertyValue) = 
             let categoryName, categoryURL = 
                 match pv.GetCategory() with
                 | Some oa ->
@@ -40,7 +40,9 @@ module PropertyValue =
                 "@id", Encode.string (pv |> genID)
                 "@type", Encode.string "PropertyValue"
                 "additionalType", Encode.string (pv.GetAdditionalType())
-
+                Encode.tryInclude "alternateName" Encode.string (pv.AlternateName())
+                Encode.tryInclude "measurementMethod" Encode.string (pv.MeasurementMethod())
+                Encode.tryInclude "description" Encode.string (pv.Description())
                 Encode.tryInclude "category" Encode.string categoryName
                 Encode.tryInclude "categoryCode" Encode.string categoryURL
                 Encode.tryInclude "value" id value
@@ -52,9 +54,15 @@ module PropertyValue =
             |> Encode.choose
             |> Encode.object
 
-        let decoder<'T> (create : createPVFunction<'T>) : Decoder<'T>= 
+        let decoder<'T> (create : createPVFunction<'T>) : Decoder<'T> = 
             Decode.object (fun get ->
                 
+                    let alternateName = get.Optional.Field "alternateName" Decode.string
+
+                    let measurementMethod = get.Optional.Field "measurementMethod" Decode.string
+
+                    let description = get.Optional.Field "description" Decode.string
+
                     let category =
                         let name = get.Optional.Field "category" Decode.string
                         let code = get.Optional.Field "categoryCode" Decode.string
@@ -96,6 +104,6 @@ module PropertyValue =
                             | err -> 
                                 failwith $"Error while decoding value {value},{code}: {err}"
 
-                    create category value unit 
+                    create alternateName measurementMethod description category value unit 
                 
             )

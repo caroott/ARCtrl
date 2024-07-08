@@ -16,14 +16,14 @@
     <Compile Include="Comment.fs" />
     <Compile Include="CommentList.fs" />
     <Compile Include="OntologyAnnotation.fs" />
+    <Compile Include="Value.fs" />
+    <Compile Include="IPropertyValue.fs" />
     <Compile Include="DataFile.fs" />
     <Compile Include="Data.fs" />
     <Compile Include="DataContext.fs" />
     <Compile Include="Person.fs" />
     <Compile Include="Publication.fs" />
     <Compile Include="OntologySourceReference.fs" />
-    <Compile Include="Process\Value.fs" />
-    <Compile Include="Process\IPropertyValue.fs" />
     <Compile Include="Process\Factor.fs" />
     <Compile Include="Process\FactorValue.fs" />
     <Compile Include="Process\MaterialAttribute.fs" />
@@ -47,7 +47,7 @@
     <Compile Include="Table\ArcTableAux.fs" />
     <Compile Include="Table\ArcTable.fs" />
     <Compile Include="Table\ArcTables.fs" />
-    <Compile Include="Table\DataMap.fs" />
+    <Compile Include="DataMap.fs" />
     <Compile Include="ArcTypes.fs" />
     <Compile Include="Template.fs" />
     <Compile Include="Templates.fs" />

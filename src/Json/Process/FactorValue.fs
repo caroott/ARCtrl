@@ -13,7 +13,7 @@ module FactorValue =
     module ROCrate =
 
         let encoder : FactorValue -> Json= 
-            PropertyValue.ROCrate.encoder<FactorValue>
+            PropertyValue.ROCrate.encoder
 
         let decoder : Decoder<FactorValue> =
             PropertyValue.ROCrate.decoder<FactorValue> (FactorValue.createAsPV)

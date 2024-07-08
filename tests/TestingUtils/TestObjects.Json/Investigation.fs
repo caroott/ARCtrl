@@ -32,7 +32,7 @@ let investigationROC =
       "studies": "sdo:hasPart",
       "ontologySourceReferences": "sdo:mentions",
       "comments": "sdo:disambiguatingDescription",
-      "publications?": "sdo:subjectOf?",
+      "publications?": "sdo:SubjectOf?",
       "filename": "sdo:alternateName"
     },
     "filename": "isa.investigation.xlsx",
@@ -3863,7 +3863,7 @@ let investigationLD =
     "studies": "sdo:hasPart",
     "ontologySourceReferences": "sdo:mentions",
     "comments": "sdo:disambiguatingDescription",
-    "publications?": "sdo:subjectOf?",
+    "publications?": "sdo:SubjectOf?",
     "filename": "sdo:alternateName"
   },
   "filename": "isa.investigation.xlsx",

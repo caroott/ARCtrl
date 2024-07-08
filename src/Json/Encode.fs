@@ -71,3 +71,8 @@ module Encode =
     let dateTime(d : System.DateTime) =         
         d.ToString("O", System.Globalization.CultureInfo.InvariantCulture).Split('+').[0]
         |> Encode.string
+
+    let addPropertyToObject (name : string) (value : Json) (obj : Json) = 
+        match obj with
+        | Json.Object kvs -> Json.Object (Seq.append kvs [name, value] )
+        | _ -> failwith "Expected object"

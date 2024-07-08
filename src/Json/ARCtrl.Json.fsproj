@@ -35,11 +35,13 @@
     <Compile Include="StringTable.fs" />
     <Compile Include="Comment.fs" />
     <Compile Include="OntologyAnnotation.fs" />
+    <Compile Include="PropertyValue.fs" />
     <Compile Include="OntologySourceReference.fs" />
+    <Compile Include="DataFile.fs" />
+    <Compile Include="Data.fs" />
     <Compile Include="Person.fs" />
     <Compile Include="Publication.fs" />
     <Compile Include="Process\Value.fs" />
-    <Compile Include="Process\PropertyValue.fs" />
     <Compile Include="Process\Factor.fs" />
     <Compile Include="Process\FactorValue.fs" />
     <Compile Include="Process\ProtocolParameter.fs" />
@@ -49,8 +51,6 @@
     <Compile Include="Process\Protocol.fs" />
     <Compile Include="Process\MaterialAttributeValue.fs" />
     <Compile Include="Process\Material.fs" />
-    <Compile Include="Process\DataFile.fs" />
-    <Compile Include="Process\Data.fs" />
     <Compile Include="Process\Source.fs" />
     <Compile Include="Process\Sample.fs" />
     <Compile Include="Process\ProcessParameterValue.fs" />
@@ -68,6 +68,10 @@
     <Compile Include="Table\ArcTable.fs" />
     <Compile Include="Table\Compression.fs" />
     <Compile Include="Table\Templates.fs" />
+    <Compile Include="Datamap\DataContext.fs" />
+    <Compile Include="Datamap\VariableMeasured.fs" />
+    <Compile Include="Datamap\MediaObject.fs" />
+    <Compile Include="Datamap\Datamap.fs" />
     <Compile Include="Assay.fs" />
     <Compile Include="Study.fs" />
     <Compile Include="Investigation.fs" />
@@ -84,7 +88,6 @@
     <ProjectReference Include="..\Core\ARCtrl.Core.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
     <None Include="../../build/logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>

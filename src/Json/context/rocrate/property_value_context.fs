@@ -8,7 +8,9 @@ module PropertyValue =
     Encode.object [
       "sdo", Encode.string "http://schema.org/"
       "additionalType", Encode.string "sdo:additionalType"
-
+      "alternateName", Encode.string "sdo:alternateName"
+      "measurementMethod", Encode.string "sdo:measurementMethod"
+      "description", Encode.string "sdo:description"
       "category", Encode.string "sdo:name"
       "categoryCode", Encode.string "sdo:propertyID"
       "value", Encode.string "sdo:value"

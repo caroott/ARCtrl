@@ -98,13 +98,28 @@ type MaterialAttributeValue =
     static member nameEqualsString (name : string) (mv : MaterialAttributeValue) =
         mv.NameText = name
 
-    interface IPropertyValue<MaterialAttributeValue> with
-        member this.GetCategory() = this.Category |> Option.bind (fun x -> x.CharacteristicType)
-        member this.GetValue() = this.Value
-        member this.GetUnit() = this.Unit
+    interface IPropertyValue with
+             
+        member this.AlternateName() = None
+
+        member this.MeasurementMethod() =
+            None
+
+        member this.Description() =
+            None
+
+        member this.GetCategory() = 
+            this.Category |> Option.bind (fun x -> x.CharacteristicType)
+
+        member this.GetValue() =             
+            this.Value
+
+        member this.GetUnit() = 
+            this.Unit
+
         member this.GetAdditionalType() = "MaterialAttributeValue"
 
-    static member createAsPV (category : OntologyAnnotation option) (value : Value option) (unit : OntologyAnnotation option) =
+    static member createAsPV (alternateName : string option) (measurementMethod : string option) (description : string option) (category : OntologyAnnotation option) (value : Value option) (unit : OntologyAnnotation option) =
         let category = category |> Option.map (fun c -> MaterialAttribute.create(CharacteristicType = c))
         MaterialAttributeValue.create(?Category = category, ?Value = value, ?Unit = unit)
 

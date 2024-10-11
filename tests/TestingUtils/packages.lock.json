@@ -138,6 +138,18 @@
           "Thoth.Json.Core": "[0.4.0, )"
         }
       },
+      "arctrl.python": {
+        "type": "Project",
+        "dependencies": {
+          "ARCtrl.CWL": "[1.0.0, )",
+          "ARCtrl.Contract": "[1.0.0, )",
+          "ARCtrl.FileSystem": "[1.0.0, )",
+          "ARCtrl.Json": "[1.0.0, )",
+          "ARCtrl.ROCrate": "[1.0.0, )",
+          "ARCtrl.Spreadsheet": "[1.0.0, )",
+          "Thoth.Json.Python": "[0.4.0, )"
+        }
+      },
       "arctrl.rocrate": {
         "type": "Project",
         "dependencies": {
@@ -234,6 +246,19 @@
           "Fable.Package.SDK": "0.1.0",
           "Newtonsoft.Json": "13.0.1",
           "Thoth.Json.Core": "0.3.0"
+        }
+      },
+      "Thoth.Json.Python": {
+        "type": "CentralTransitive",
+        "requested": "[0.4.0, )",
+        "resolved": "0.4.0",
+        "contentHash": "O86Oisv/91NpbHENz11poZh9zrTRJdAjDXHVC1JqvDDsscelI7HxOmWgks8ZFvYxbBzNJCG+FKQHC10KzyMf8g==",
+        "dependencies": {
+          "FSharp.Core": "5.0.0",
+          "Fable.Core": "4.1.0",
+          "Fable.Package.SDK": "1.0.0",
+          "Fable.Python": "4.3.0",
+          "Thoth.Json.Core": "0.4.0"
         }
       },
       "YAMLicious": {
